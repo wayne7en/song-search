@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google 試算表搜尋系統</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #09f;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen p-4 md:p-8">
+    <div class="max-w-6xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">試算表即時搜尋系統</h1>
+        
+        <!-- 輸入區域 -->
+        <div class="flex flex-col md:flex-row gap-4 mb-8">
+            <input type="text" id="searchInput" 
+                   class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   placeholder="請輸入搜尋關鍵字並寫入 A2...">
+            <button onclick="performSearch()" id="searchBtn"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition duration-200">
+                執行搜尋
+            </button>
+        </div>
+
+        <!-- 狀態顯示 -->
+        <div id="status" class="hidden flex justify-center items-center gap-3 mb-6">
+            <div class="loading-spinner"></div>
+            <span class="text-gray-600">正在寫入試算表並提取結果...</span>
+        </div>
+
+        <!-- 結果顯示區域 -->
+        <div id="resultContainer" class="overflow-x-auto hidden">
+            <table class="min-w-full table-auto border-collapse border border-gray-200">
+                <thead>
+                    <tr class="bg-gray-100 text-left">
+                        <th class="border p-2">國語</th>
+                        <th class="border p-2">B</th>
+                        <th class="border p-2">C</th>
+                        <th class="border p-2">臺語</th>
+                        <th class="border p-2">E</th>
+                        <th class="border p-2">F</th>
+                        <th class="border p-2">英語</th>
+                        <th class="border p-2">H</th>
+                        <th class="border p-2">I</th>
+                    </tr>
+                </thead>
+                <tbody id="resultBody">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 錯誤提示 -->
+        <div id="errorBox" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+        </div>
+
+        <!-- 更新後的 Apps Script 說明 -->
+        <div class="mt-12 border-t pt-6 text-xs text-gray-400">
+            <p class="font-bold">請確保 Apps Script 已更新為 doGet (JSONP) 模式並重新部署為「新版本」。</p>
+        </div>
+    </div>
+
+    <script>
+        // 填入您最新的 Web App 網址
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx3sWNcPkmTB_O27CbgCUeV4xOmyhjwHrM2rlKezDCXV-XCBTmDgWieT7EHoakwWe3cmQ/exec';
+
+        // 全域回呼函數，供 JSONP 使用
+        window.handleResponse = function(response) {
+            const status = document.getElementById('status');
+            const searchBtn = document.getElementById('searchBtn');
+            status.classList.add('hidden');
+            searchBtn.disabled = false;
+
+            if (response.status === "success") {
+                renderResults(response.data);
+            } else {
+                showError("搜尋失敗：" + response.message);
+            }
+            
+            // 移除暫時的 script 標籤
+            const oldScript = document.getElementById('jsonp-script');
+            if (oldScript) oldScript.remove();
+        };
+
+        function performSearch() {
+            const text = document.getElementById('searchInput').value.trim();
+            if (!text) {
+                showError("請輸入搜尋內容");
+                return;
+            }
+
+            document.getElementById('errorBox').classList.add('hidden');
+            document.getElementById('resultContainer').classList.add('hidden');
+            document.getElementById('status').classList.remove('hidden');
+            document.getElementById('searchBtn').disabled = true;
+
+            // 使用 JSONP 繞過 CORS
+            const script = document.createElement('script');
+            script.id = 'jsonp-script';
+            script.src = `${SCRIPT_URL}?callback=handleResponse&text=${encodeURIComponent(text)}`;
+            document.body.appendChild(script);
+        }
+
+        function renderResults(data) {
+            const resultBody = document.getElementById('resultBody');
+            const resultContainer = document.getElementById('resultContainer');
+            resultBody.innerHTML = '';
+
+            if (!data || data.length === 0) {
+                showError("第 4 行以後沒有找到資料。");
+                return;
+            }
+
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                // 確保只取 A 到 I 欄 (前 9 個元素)
+                const cells = row.slice(0, 9);
+                cells.forEach(cell => {
+                    const td = document.createElement('td');
+                    td.className = "border p-2 text-sm text-gray-700 whitespace-pre-wrap";
+                    td.textContent = cell || "";
+                    tr.appendChild(td);
+                });
+                resultBody.appendChild(tr);
+            });
+
+            resultContainer.classList.remove('hidden');
+        }
+
+        function showError(msg) {
+            const errorBox = document.getElementById('errorBox');
+            errorBox.textContent = msg;
+            errorBox.classList.remove('hidden');
+        }
+    </script>
+
+    <!-- 
+    ===== 請將下方代碼替換至 Google Apps Script 並重新部署 =====
+    
+    function doGet(e) {
+      const callback = e.parameter.callback;
+      const text = e.parameter.text;
+      
+      try {
+        const ss = SpreadsheetApp.getActiveSpreadsheet();
+        const sheet = ss.getSheets()[0];
+        
+        // 1. 將輸入寫入 A2
+        sheet.getRange("A2").setValue(text);
+        
+        // 2. 強制重新計算公式
+        SpreadsheetApp.flush();
+        
+        // 3. 獲取第 4 行開始到最後一行的 A-I 欄位資料
+        const lastRow = sheet.getLastRow();
+        let results = [];
+        
+        if (lastRow >= 4) {
+          // getRange(起始列, 起始欄, 列數, 欄數)
+          results = sheet.getRange(4, 1, lastRow - 3, 9).getValues();
+        }
+        
+        const output = {
+          status: "success",
+          data: results
+        };
+        
+        // 以 JSONP 格式回傳
+        return ContentService.createTextOutput(callback + '(' + JSON.stringify(output) + ')')
+          .setMimeType(ContentService.MimeType.JAVASCRIPT);
+          
+      } catch (err) {
+        return ContentService.createTextOutput(callback + '(' + JSON.stringify({status: "error", message: err.toString()}) + ')')
+          .setMimeType(ContentService.MimeType.JAVASCRIPT);
+      }
+    }
+    -->
+</body>
+</html>
