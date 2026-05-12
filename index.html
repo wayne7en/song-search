@@ -41,25 +41,30 @@
         </div>
 
         <!-- 結果顯示區域 -->
-        <div id="resultContainer" class="overflow-x-auto hidden">
-            <table class="min-w-full table-auto border-collapse border border-gray-200">
-                <thead>
-                    <tr class="bg-gray-100 text-left">
-                        <th class="border p-2">國語 ID</th>
-                        <th class="border p-2">歌曲名</th>
-                        <th class="border p-2">演唱者</th>
-                        <th class="border p-2">臺語 ID</th>
-                        <th class="border p-2">歌曲名</th>
-                        <th class="border p-2">演唱者</th>
-                        <th class="border p-2">英語 ID</th>
-                        <th class="border p-2">歌曲名</th>
-                        <th class="border p-2">演唱者</th>
-                    </tr>
-                </thead>
-                <tbody id="resultBody">
-                </tbody>
-            </table>
-        </div>
+        <div id="resultContainer" class="table-container overflow-x-auto hidden border border-slate-100 rounded-xl">
+                <table class="min-w-[800px] w-full table-auto border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-600 text-sm uppercase">
+                            <th class="border-b p-4 text-left whitespace-nowrap">國語 ID</th>
+                            <th class="border-b p-4 text-left whitespace-nowrap">歌曲名</th>
+                            <th class="border-b p-4 text-left whitespace-nowrap">演唱者</th>
+                            <th class="border-b p-4 text-left whitespace-nowrap">臺語 ID</th>
+                            <th class="border-b p-4 text-left whitespace-nowrap">歌曲名</th>
+                            <th class="border-b p-4 text-left whitespace-nowrap">演唱者</th>
+                            <th class="border-b p-4 text-left whitespace-nowrap">英語 ID</th>
+                            <th class="border-b p-4 text-left whitespace-nowrap">歌曲名</th>
+                            <th class="border-b p-4 text-left whitespace-nowrap">演唱者</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultBody" class="divide-y divide-slate-100">
+                        <!-- 動態結果 -->
+                    </tbody>
+                </table>
+            </div>
+
+
+        
+        
 
         <!-- 錯誤提示 -->
         <div id="errorBox" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
