@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google 試算表搜尋系統</title>
+    <title>金嗓歌單搜尋系統</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .loading-spinner {
@@ -45,15 +45,15 @@
             <table class="min-w-full table-auto border-collapse border border-gray-200">
                 <thead>
                     <tr class="bg-gray-100 text-left">
-                        <th class="border p-2">國語</th>
-                        <th class="border p-2">B</th>
-                        <th class="border p-2">C</th>
-                        <th class="border p-2">臺語</th>
-                        <th class="border p-2">E</th>
-                        <th class="border p-2">F</th>
-                        <th class="border p-2">英語</th>
-                        <th class="border p-2">H</th>
-                        <th class="border p-2">I</th>
+                        <th class="border p-2">國語 ID</th>
+                        <th class="border p-2">歌曲名</th>
+                        <th class="border p-2">演唱者</th>
+                        <th class="border p-2">臺語 ID</th>
+                        <th class="border p-2">歌曲名</th>
+                        <th class="border p-2">演唱者</th>
+                        <th class="border p-2">英語 ID</th>
+                        <th class="border p-2">歌曲名</th>
+                        <th class="border p-2">演唱者</th>
                     </tr>
                 </thead>
                 <tbody id="resultBody">
@@ -67,7 +67,7 @@
 
         <!-- 更新後的 Apps Script 說明 -->
         <div class="mt-12 border-t pt-6 text-xs text-gray-400">
-            <p class="font-bold">請確保 Apps Script 已更新為 doGet (JSONP) 模式並重新部署為「新版本」。</p>
+            <p class="font-bold">請輸入歌曲或演唱者的關鍵字或完整名字。</p>
         </div>
     </div>
 
