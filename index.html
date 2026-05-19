@@ -17,6 +17,11 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        /* 優化行動端表格捲動 20260519*/
+        .table-container {
+            -webkit-overflow-scrolling: touch;
+        }
+
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen p-4 md:p-8">
@@ -37,7 +42,7 @@
         <!-- 狀態顯示 -->
         <div id="status" class="hidden flex justify-center items-center gap-3 mb-6">
             <div class="loading-spinner"></div>
-            <span class="text-gray-600">正在寫入試算表並提取結果...</span>
+            <span class="text-gray-600">正在同步雲端資料...</span>
         </div>
 
         <!-- 結果顯示區域 -->
@@ -101,7 +106,7 @@
         function performSearch() {
             const text = document.getElementById('searchInput').value.trim();
             if (!text) {
-                showError("請輸入搜尋內容");
+                showError("請先輸入搜尋內容再執行。");
                 return;
             }
 
@@ -143,11 +148,28 @@
             resultContainer.classList.remove('hidden');
         }
 
+        // 20260519
         function showError(msg) {
             const errorBox = document.getElementById('errorBox');
-            errorBox.textContent = msg;
+            const errorMsg = document.getElementById('errorMessage');
+            errorMsg.textContent = msg;
             errorBox.classList.remove('hidden');
+            document.getElementById('status').classList.add('hidden');
+            document.getElementById('searchBtn').disabled = false;
         }
+
+        // 支援 Enter 鍵搜尋（優化版：使用 keydown 並防止中文輸入法選字時誤觸發）
+        document.getElementById('searchInput').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                // 如果使用者正在使用注音/拼音等輸入法選字中 (isComposing)，不觸發搜尋
+                if (e.isComposing || e.keyCode === 229) {
+                    return;
+                }
+                e.preventDefault(); // 防止網頁預設行為
+                performSearch();    // 執行搜尋
+            }
+        });
+
     </script>
 
     <!-- 
